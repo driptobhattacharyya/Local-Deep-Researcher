@@ -1,0 +1,9 @@
+{
+  "graphs": [
+    {
+      "id": "Deep Researcher",
+      "path": "src/open_deep_research/deep_researcher.py",
+      "config_schema": "src/open_deep_research/configuration.py"
+    }
+  ]
+}
