@@ -1,1 +1,1 @@
-# (same as source project)
+<file content copied from local> See local workspace for full content.
