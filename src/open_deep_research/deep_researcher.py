@@ -392,9 +392,9 @@ async def researcher(state: ResearcherState, config: RunnableConfig) -> Command[
     # Step 2: Configure the researcher model with tools
     research_model_config = {
         "model": configurable.research_model,
-        "max_tokens": configurable.research_model_max_tokens,
         "api_key": get_api_key_for_model(configurable.research_model, config),
-        "tags": ["langsmith:nostream"]
+        "tags": ["langsmith:nostream"],
+        **get_model_kwargs(configurable.research_model, configurable.research_model_max_tokens),
     }
     
     # Prepare system prompt with MCP context if available
@@ -513,7 +513,7 @@ async def compress_research(state: ResearcherState, config: RunnableConfig):
     """Compress and synthesize research findings into a concise, structured summary.
     
     This function takes all the research findings, tool outputs, and AI messages from
-    a researcher's work and distills them into a clean, comprehensive summary while
+    a researcher's work and distills them into a clean, comprehensive summary while
     preserving all important information and findings.
     
     Args:
