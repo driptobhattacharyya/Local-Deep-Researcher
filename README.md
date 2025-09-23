@@ -18,32 +18,44 @@ Deep research has broken out as one of the most popular agent applications. This
 
 **July 16, 2025**: Read more in our [blog](https://blog.langchain.com/open-deep-research/) and watch our [video](https://www.youtube.com/watch?v=agGiWUpxkhg) for a quick overview.
 
-### 🚀 Quickstart
+### 🚀 Quickstart (Ollama-first, Windows-friendly)
 
-1. Clone the repository and activate a virtual environment:
+1. Clone the repository and create a virtual environment:
+
+Windows PowerShell:
+```powershell
+git clone https://github.com/driptobhattacharyya/Local-Deep-Researcher.git
+cd Local-Deep-Researcher
+uv venv; .\.venv\Scripts\Activate.ps1
+```
+
+macOS/Linux:
 ```bash
-git clone https://github.com/langchain-ai/open_deep_research.git
-cd open_deep_research
+git clone https://github.com/driptobhattacharyya/Local-Deep-Researcher.git
+cd Local-Deep-Researcher
 uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+source .venv/bin/activate
 ```
 
-2. Install dependencies:
-```bash
+2. Install dependencies (uses uv.lock for reproducible installs):
+```powershell
 uv sync
-# or
-uv pip install -r pyproject.toml
 ```
 
-3. Set up your `.env` file to customize the environment variables (for model selection, search tools, and other configuration settings):
-```bash
-cp .env.example .env
+3. Copy env and set local defaults (models already default to Ollama):
+```powershell
+Copy-Item .env.example .env
+# optional: set a Tavily key for better search quality
+# [Environment]::SetEnvironmentVariable('TAVILY_API_KEY','your-key','Process')
 ```
 
-4. Launch agent with the LangGraph server locally:
+4. Ensure Ollama is running and you have a model pulled (example: mistral):
+```powershell
+ollama pull mistral
+```
 
-```bash
-# Install dependencies and start the LangGraph server
+5. Start the LangGraph dev server (Python 3.11 per langgraph.json):
+```powershell
 uvx --refresh --from "langgraph-cli[inmem]" --with-editable . --python 3.11 langgraph dev --allow-blocking
 ```
 
@@ -55,22 +67,22 @@ This will open the LangGraph Studio UI in your browser.
 - 📚 API Docs: http://127.0.0.1:2024/docs
 ```
 
-Ask a question in the `messages` input field and click `Submit`. Select different configuration in the "Manage Assistants" tab.
+Ask a question in the `messages` input field and click `Submit`. You can adjust models/tools in the "Manage Assistants" tab.
 
 ### ⚙️ Configurations
 
 #### LLM :brain:
 
-Open Deep Research supports a wide range of LLM providers via the [init_chat_model() API](https://python.langchain.com/docs/how_to/chat_models_universal_init/). It uses LLMs for a few different tasks. See the below model fields in the [configuration.py](https://github.com/langchain-ai/open_deep_research/blob/main/src/open_deep_research/configuration.py) file for more details. This can be accessed via the LangGraph Studio UI. 
+This agent supports many providers via LangChain’s init_chat_model. We ship with local-first defaults:
 
-- **Summarization** (default: `openai:gpt-4.1-mini`): Summarizes search API results
-- **Research** (default: `openai:gpt-4.1`): Power the search agent
-- **Compression** (default: `openai:gpt-4.1`): Compresses research findings
-- **Final Report Model** (default: `openai:gpt-4.1`): Write the final report
+- Summarization: `ollama:mistral`
+- Research: `ollama:mistral`
+- Compression: `ollama:mistral`
+- Final Report: `ollama:mistral`
 
 > Note: the selected model will need to support [structured outputs](https://python.langchain.com/docs/integrations/chat/) and [tool calling](https://python.langchain.com/docs/how_to/tool_calling/).
 
-> Note: For OpenRouter: Follow [this guide](https://github.com/langchain-ai/open_deep_research/issues/75#issuecomment-2811472408) and for local models via Ollama see quickstart below.
+> Note: For OpenRouter or cloud models, change the model fields to e.g. `openai:gpt-4.1` or `anthropic:claude-sonnet-4-20250514` in the UI or via env. For local models, keep the `ollama:` prefix.
 
 #### Use local Ollama models
 
@@ -82,12 +94,12 @@ You can run the agent fully locally with [Ollama](https://ollama.com/). Steps:
 
 	- Windows/macOS/Linux: `ollama pull llama3.1`
 
-3) In Studio or env, set model fields to use the `ollama:` prefix, e.g.:
+3) In Studio or env, set model fields to use the `ollama:` prefix (already defaulted), e.g.:
 
-	- Summarization model: `ollama:llama3.1`
-	- Research model: `ollama:llama3.1`
-	- Compression model: `ollama:llama3.1`
-	- Final report model: `ollama:llama3.1`
+	- Summarization model: `ollama:mistral` (or `ollama:llama3.1`)
+	- Research model: `ollama:mistral`
+	- Compression model: `ollama:mistral`
+	- Final report model: `ollama:mistral`
 
 Notes:
 
@@ -154,3 +166,19 @@ We've deployed Open Deep Research to our public demo instance of OAP. All you ne
 You can also deploy your own instance of OAP, and make your own custom agents (like Deep Researcher) available on it to your users.
 1. [Deploy Open Agent Platform](https://docs.oap.langchain.com/quickstart)
 2. [Add Deep Researcher to OAP](https://docs.oap.langchain.com/setup/agents)
+
+### Legacy Implementations 🏛️
+
+The `src/legacy/` folder contains two earlier implementations that provide alternative approaches to automated research. They are less performant than the current implementation, but provide alternative ideas understanding the different approaches to deep research.
+
+#### 1. Workflow Implementation (`legacy/graph.py`)
+- **Plan-and-Execute**: Structured workflow with human-in-the-loop planning
+- **Sequential Processing**: Creates sections one by one with reflection
+- **Interactive Control**: Allows feedback and approval of report plans
+- **Quality Focused**: Emphasizes accuracy through iterative refinement
+
+#### 2. Multi-Agent Implementation (`legacy/multi_agent.py`)  
+- **Supervisor-Researcher Architecture**: Coordinated multi-agent system
+- **Parallel Processing**: Multiple researchers work simultaneously
+- **Speed Optimized**: Faster report generation through concurrency
+- **MCP Support**: Extensive Model Context Protocol integration
